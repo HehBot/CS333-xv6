@@ -181,9 +181,13 @@ UPROGS=\
 	_usertests\
 	_wc\
 	_zombie\
+	_pingpong\
 
-fs.img: mkfs README $(UPROGS)
-	./mkfs fs.img README $(UPROGS)
+UFILES=\
+	pingpong.txt\
+
+fs.img: mkfs README $(UPROGS) $(UFILES)
+	./mkfs fs.img README $(UPROGS) $(UFILES)
 
 -include *.d
 
@@ -253,6 +257,7 @@ EXTRA=\
 	printf.c umalloc.c\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
 	.gdbinit.tmpl gdbutil\
+	$(UFILES)\
 
 dist:
 	rm -rf dist
