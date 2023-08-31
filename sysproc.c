@@ -81,3 +81,9 @@ int sys_uptime(void)
     release(&tickslock);
     return xticks;
 }
+
+int sys_worldpeace()
+{
+    worldpeace();
+    return 0;
+}

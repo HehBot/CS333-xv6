@@ -518,3 +518,9 @@ void procdump(void)
         cprintf("\n");
     }
 }
+
+//  World peace
+void worldpeace(void)
+{
+    cprintf("Systems are vital to world peace !!\n");
+}

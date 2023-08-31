@@ -42,5 +42,6 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
+void worldpeace(void);
 
 #endif // XV6_USER_H

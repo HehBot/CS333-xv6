@@ -183,6 +183,8 @@ UPROGS=\
 	_zombie\
 	_pingpong\
 	_cmd\
+	_test-message\
+	_test-numberofprocesses\
 
 UFILES=\
 	pingpong.txt\
