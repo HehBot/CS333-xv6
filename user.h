@@ -1,6 +1,8 @@
 #ifndef XV6_USER_H
 #define XV6_USER_H
 
+#include "types.h"
+
 struct stat;
 struct rtcdate;
 

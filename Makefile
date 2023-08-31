@@ -182,6 +182,7 @@ UPROGS=\
 	_wc\
 	_zombie\
 	_pingpong\
+	_cmd\
 
 UFILES=\
 	pingpong.txt\
