@@ -44,5 +44,6 @@ void free(void*);
 int atoi(const char*);
 void worldpeace(void);
 int numberofprocesses(void);
+int whatsthestatus(int pid);
 
 #endif // XV6_USER_H

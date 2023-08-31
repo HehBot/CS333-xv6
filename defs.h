@@ -125,6 +125,7 @@ void sleep(void*, struct spinlock*);
 void userinit(void);
 int wait(void);
 void wakeup(void*);
+int whatsthestatus(int);
 void worldpeace(void);
 void yield(void);
 

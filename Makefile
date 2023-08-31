@@ -185,6 +185,7 @@ UPROGS=\
 	_cmd\
 	_test-message\
 	_test-numberofprocesses\
+	_test-whatsthestatus\
 
 UFILES=\
 	pingpong.txt\

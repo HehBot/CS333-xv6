@@ -535,3 +535,24 @@ int numberofprocesses(void)
             n++;
     return n;
 }
+
+//  Status of a process
+int whatsthestatus(int pid)
+{
+    struct proc* p;
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        if (p->pid == pid) {
+            char const* state_name[] = {
+                [UNUSED] "UNUSED",
+                [EMBRYO] "EMBRYO",
+                [SLEEPING] "SLEEPING",
+                [RUNNABLE] "RUNNABLE",
+                [RUNNING] "RUNNING",
+                [ZOMBIE] "ZOMBIE",
+            };
+            cprintf("%d  %s %d  %s\n", pid, state_name[p->state], p->pid, p->parent->name);
+            return p->parent->pid;
+        }
+    }
+    return -1;
+}
