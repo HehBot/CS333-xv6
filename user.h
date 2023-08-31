@@ -45,5 +45,6 @@ int atoi(const char*);
 void worldpeace(void);
 int numberofprocesses(void);
 int whatsthestatus(int pid);
+int spawn(int n, int* pids);
 
 #endif // XV6_USER_H

@@ -101,3 +101,14 @@ int sys_whatsthestatus(void)
         return -1;
     return whatsthestatus(pid);
 }
+
+int sys_spawn(void)
+{
+    int n;
+    int* pids;
+
+    if (argint(0, &n) < 0 || argstr(1, (void*)&pids) < 0)
+        return -1;
+
+    return spawn(n, pids);
+}

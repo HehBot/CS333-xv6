@@ -26,5 +26,6 @@
 #define SYS_worldpeace 22
 #define SYS_numberofprocesses 23
 #define SYS_whatsthestatus 24
+#define SYS_spawn 25
 
 #endif // XV6_SYSCALL_H

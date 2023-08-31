@@ -556,3 +556,17 @@ int whatsthestatus(int pid)
     }
     return -1;
 }
+
+//  Spawning multiple children
+int spawn(int n, int* pids)
+{
+    int num_spawned = 0;
+    for (int j = 0; j < n; ++j) {
+        int pid = fork();
+        if (pid == -1)
+            continue;
+        pids[num_spawned] = pid;
+        num_spawned++;
+    }
+    return num_spawned;
+}

@@ -186,6 +186,7 @@ UPROGS=\
 	_test-message\
 	_test-numberofprocesses\
 	_test-whatsthestatus\
+	_test-spawn\
 
 UFILES=\
 	pingpong.txt\
