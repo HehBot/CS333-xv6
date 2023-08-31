@@ -43,5 +43,6 @@ void* malloc(uint);
 void free(void*);
 int atoi(const char*);
 void worldpeace(void);
+int numberofprocesses(void);
 
 #endif // XV6_USER_H

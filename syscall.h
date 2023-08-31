@@ -24,5 +24,6 @@
 #define SYS_mkdir 20
 #define SYS_close 21
 #define SYS_worldpeace 22
+#define SYS_numberofprocesses 23
 
 #endif // XV6_SYSCALL_H

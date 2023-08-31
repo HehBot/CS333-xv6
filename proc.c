@@ -524,3 +524,14 @@ void worldpeace(void)
 {
     cprintf("Systems are vital to world peace !!\n");
 }
+
+//  Number of runnable processes
+int numberofprocesses(void)
+{
+    struct proc* p;
+    int n = 0;
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+        if (p->state == RUNNABLE)
+            n++;
+    return n;
+}

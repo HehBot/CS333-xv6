@@ -82,8 +82,13 @@ int sys_uptime(void)
     return xticks;
 }
 
-int sys_worldpeace()
+int sys_worldpeace(void)
 {
     worldpeace();
     return 0;
+}
+
+int sys_numberofprocesses(void)
+{
+    return numberofprocesses();
 }
