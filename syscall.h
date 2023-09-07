@@ -23,5 +23,6 @@
 #define SYS_link 19
 #define SYS_mkdir 20
 #define SYS_close 21
+#define SYS_getvasize 22
 
 #endif // XV6_SYSCALL_H

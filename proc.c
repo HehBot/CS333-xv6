@@ -518,3 +518,14 @@ void procdump(void)
         cprintf("\n");
     }
 }
+
+// Returns size of virtual memory used by a process
+int getvasize(int pid)
+{
+    struct proc* p;
+
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+        if (p->pid == pid)
+            return p->sz;
+    return -1;
+}
