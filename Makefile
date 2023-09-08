@@ -182,6 +182,8 @@ UPROGS=\
 	_wc\
 	_zombie\
 	_t_getvasize\
+	_t_va2pa1\
+	_t_va2pa2\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

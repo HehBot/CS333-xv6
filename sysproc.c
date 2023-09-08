@@ -90,3 +90,11 @@ int sys_getvasize(void)
         return -1;
     return getvasize(pid);
 }
+
+int sys_va2pa(void)
+{
+    uint virtual_addr;
+    if (argint(0, (int*)&virtual_addr) < 0)
+        return -1;
+    return va2pa(virtual_addr);
+}

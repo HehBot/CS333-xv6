@@ -529,3 +529,11 @@ int getvasize(int pid)
             return p->sz;
     return -1;
 }
+
+// Returns physical address for given virtual address
+unsigned int va2pa(unsigned int virtual_addr)
+{
+    pte_t* walkpgdir(pde_t * pgdir, const void* va, int alloc);
+    unsigned int page_addr = (*walkpgdir(myproc()->pgdir, (void*)virtual_addr, 0)) & 0xfffff000;
+    return (page_addr + (virtual_addr & 0xfff));
+}

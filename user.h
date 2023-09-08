@@ -27,6 +27,7 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int getvasize(int);
+unsigned int va2pa(unsigned int virtual_addr);
 
 // ulib.c
 int stat(const char*, struct stat*);

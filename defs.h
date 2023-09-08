@@ -123,6 +123,7 @@ void sched(void);
 void setproc(struct proc*);
 void sleep(void*, struct spinlock*);
 void userinit(void);
+unsigned int va2pa(unsigned int virtual_addr);
 int wait(void);
 void wakeup(void*);
 void yield(void);
