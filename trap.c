@@ -42,6 +42,11 @@ void trap(struct trapframe* tf)
             exit();
         return;
     }
+    if (tf->trapno == T_PGFLT) {
+        myproc()->killed = 1;
+        exit();
+        return;
+    }
 
     switch (tf->trapno) {
     case T_IRQ0 + IRQ_TIMER:
