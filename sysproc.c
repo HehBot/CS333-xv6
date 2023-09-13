@@ -111,3 +111,12 @@ int sys_get_kernel_pgtb_size(void)
 {
     return get_pgtb_size(2);
 }
+
+int sys_getpasize(void)
+{
+    int pid;
+
+    if (argint(0, &pid) < 0)
+        return -1;
+    return getpasize(pid);
+}

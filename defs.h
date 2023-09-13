@@ -112,6 +112,7 @@ int cpuid(void);
 void exit(void);
 int fork(void);
 int get_pgtb_size(int);
+int getpasize(int);
 int getvasize(int);
 int growproc(int);
 int kill(int);

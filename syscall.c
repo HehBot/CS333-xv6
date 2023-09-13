@@ -103,6 +103,7 @@ extern int sys_va2pa(void);
 extern int sys_get_pgtb_size(void);
 extern int sys_get_usr_pgtb_size(void);
 extern int sys_get_kernel_pgtb_size(void);
+extern int sys_getpasize(void);
 
 static int (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
@@ -131,6 +132,7 @@ static int (*syscalls[])(void) = {
     [SYS_get_pgtb_size] sys_get_pgtb_size,
     [SYS_get_usr_pgtb_size] sys_get_usr_pgtb_size,
     [SYS_get_kernel_pgtb_size] sys_get_kernel_pgtb_size,
+    [SYS_getpasize] sys_getpasize,
 };
 
 void syscall(void)

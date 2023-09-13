@@ -561,3 +561,22 @@ int get_pgtb_size(int which)
     }
     return count;
 }
+
+// Returns size of physical memory used by a process
+int getpasize(int pid)
+{
+    struct proc* p;
+
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+        if (p->pid == pid) {
+            pte_t* walkpgdir(pde_t * pgdir, const void* va, int alloc);
+            int count = 0;
+            for (int i = 0; i < myproc()->sz; i += 4096) {
+                pte_t* pte = walkpgdir(myproc()->pgdir, (void*)i, 0);
+                if (*pte & PTE_P)
+                    count++;
+            }
+            return count;
+        }
+    return -1;
+}
