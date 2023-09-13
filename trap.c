@@ -43,9 +43,17 @@ void trap(struct trapframe* tf)
         return;
     }
     if (tf->trapno == T_PGFLT) {
-        cprintf("Pagefault occured at address eip 0x%x addr 0x%x--kill proc\n", tf->eip, rcr2());
-        myproc()->killed = 1;
-        exit();
+        if (myproc()->killed)
+            exit();
+        myproc()->tf = tf;
+
+        if (rcr2() < myproc()->sz) {
+            char* mem = kalloc();
+            int mappages(pde_t * pgdir, void* va, uint size, uint pa, int perm);
+            mappages(myproc()->pgdir, (void*)rcr2(), PGSIZE, V2P(mem), PTE_W | PTE_U);
+        } else
+            myproc()->killed = 1;
+        switchuvm(myproc());
         return;
     }
 
