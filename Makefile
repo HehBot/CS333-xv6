@@ -184,6 +184,7 @@ UPROGS=\
 	_t_getvasize\
 	_t_va2pa1\
 	_t_va2pa2\
+	_t_getpgtablesz\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

@@ -25,5 +25,8 @@
 #define SYS_close 21
 #define SYS_getvasize 22
 #define SYS_va2pa 23
+#define SYS_get_pgtb_size 24
+#define SYS_get_usr_pgtb_size 25
+#define SYS_get_kernel_pgtb_size 26
 
 #endif // XV6_SYSCALL_H

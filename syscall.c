@@ -100,6 +100,9 @@ extern int sys_write(void);
 extern int sys_uptime(void);
 extern int sys_getvasize(void);
 extern int sys_va2pa(void);
+extern int sys_get_pgtb_size(void);
+extern int sys_get_usr_pgtb_size(void);
+extern int sys_get_kernel_pgtb_size(void);
 
 static int (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
@@ -125,6 +128,9 @@ static int (*syscalls[])(void) = {
     [SYS_close] sys_close,
     [SYS_getvasize] sys_getvasize,
     [SYS_va2pa] sys_va2pa,
+    [SYS_get_pgtb_size] sys_get_pgtb_size,
+    [SYS_get_usr_pgtb_size] sys_get_usr_pgtb_size,
+    [SYS_get_kernel_pgtb_size] sys_get_kernel_pgtb_size,
 };
 
 void syscall(void)

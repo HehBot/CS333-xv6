@@ -537,3 +537,27 @@ unsigned int va2pa(unsigned int virtual_addr)
     unsigned int page_addr = (*walkpgdir(myproc()->pgdir, (void*)virtual_addr, 0)) & 0xfffff000;
     return (page_addr + (virtual_addr & 0xfff));
 }
+
+// Returns page table sizes
+int get_pgtb_size(int which)
+{
+    pte_t* walkpgdir(pde_t * pgdir, const void* va, int alloc);
+    int count = 0;
+    int l = 0, u = 1024;
+    switch (which) {
+    case 1:
+        u = 512;
+        break;
+    case 2:
+        l = 512;
+        break;
+    }
+
+    for (int i = l; i < u; ++i) {
+        unsigned int pgtb_phy_addr = myproc()->pgdir[i];
+        unsigned int pgtb_flags = pgtb_phy_addr & 0xfff;
+        if (pgtb_flags & PTE_P)
+            count++;
+    }
+    return count;
+}

@@ -98,3 +98,16 @@ int sys_va2pa(void)
         return -1;
     return va2pa(virtual_addr);
 }
+
+int sys_get_pgtb_size(void)
+{
+    return get_pgtb_size(0);
+}
+int sys_get_usr_pgtb_size(void)
+{
+    return get_pgtb_size(1);
+}
+int sys_get_kernel_pgtb_size(void)
+{
+    return get_pgtb_size(2);
+}
