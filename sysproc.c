@@ -120,3 +120,13 @@ int sys_getpasize(void)
         return -1;
     return getpasize(pid);
 }
+
+int sys_mmap(void)
+{
+    int amt;
+    if (argint(0, &amt) < 0)
+        return -1;
+    int addr = myproc()->sz;
+    myproc()->sz += amt;
+    return addr;
+}

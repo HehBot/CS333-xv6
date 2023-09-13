@@ -187,6 +187,7 @@ UPROGS=\
 	_t_getpgtablesz\
 	_t_getpasize\
 	_t_pagefault\
+	_t_mmap\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

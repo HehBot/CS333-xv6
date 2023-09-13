@@ -43,6 +43,7 @@ void trap(struct trapframe* tf)
         return;
     }
     if (tf->trapno == T_PGFLT) {
+        cprintf("Pagefault occured at address eip 0x%x addr 0x%x--kill proc\n", tf->eip, rcr2());
         myproc()->killed = 1;
         exit();
         return;

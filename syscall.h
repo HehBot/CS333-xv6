@@ -29,5 +29,6 @@
 #define SYS_get_usr_pgtb_size 25
 #define SYS_get_kernel_pgtb_size 26
 #define SYS_getpasize 27
+#define SYS_mmap 28
 
 #endif // XV6_SYSCALL_H
