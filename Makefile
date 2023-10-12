@@ -182,6 +182,7 @@ UPROGS=\
 	_wc\
 	_zombie\
 	_cscount\
+	_task1b\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

@@ -92,3 +92,14 @@ int sys_cscount(void)
     cprintf("pid [%d] switch in [%d],switch out [%d]\n", p->pid, p->switch_in, p->switch_out);
     return 0;
 }
+
+int sys_wait2(void)
+{
+    int* wtime;
+    int* runtime;
+
+    if (argint(0, (void*)&wtime) < 0 || argint(1, (void*)&runtime) < 0)
+        return -1;
+
+    return wait2(wtime, runtime);
+}

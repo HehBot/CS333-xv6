@@ -24,5 +24,6 @@
 #define SYS_mkdir 20
 #define SYS_close 21
 #define SYS_cscount 22
+#define SYS_wait2 23
 
 #endif // XV6_SYSCALL_H

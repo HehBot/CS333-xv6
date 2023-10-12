@@ -27,6 +27,7 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 void cscount(int);
+int wait2(int*, int*);
 
 // ulib.c
 int stat(const char*, struct stat*);
