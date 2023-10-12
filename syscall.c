@@ -99,6 +99,8 @@ extern int sys_wait(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
 extern int sys_smalloc(void);
+extern int sys_acquirespinlk(void);
+extern int sys_releasespinlk(void);
 
 static int (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
@@ -123,6 +125,8 @@ static int (*syscalls[])(void) = {
     [SYS_mkdir] sys_mkdir,
     [SYS_close] sys_close,
     [SYS_smalloc] sys_smalloc,
+    [SYS_acquirespinlk] sys_acquirespinlk,
+    [SYS_releasespinlk] sys_releasespinlk,
 };
 
 void syscall(void)

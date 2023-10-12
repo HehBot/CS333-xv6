@@ -86,3 +86,15 @@ int sys_smalloc(void)
 {
     return (int)smalloc();
 }
+
+int sys_acquirespinlk(void)
+{
+    acquirespinlk();
+    return 0;
+}
+
+int sys_releasespinlk(void)
+{
+    releasespinlk();
+    return 0;
+}

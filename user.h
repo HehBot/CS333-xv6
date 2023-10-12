@@ -27,6 +27,8 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 void* smalloc(void);
+void acquirespinlk(void);
+void releasespinlk(void);
 
 // ulib.c
 int stat(const char*, struct stat*);

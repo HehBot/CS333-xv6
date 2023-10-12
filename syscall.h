@@ -24,5 +24,7 @@
 #define SYS_mkdir 20
 #define SYS_close 21
 #define SYS_smalloc 22
+#define SYS_acquirespinlk 23
+#define SYS_releasespinlk 24
 
 #endif // XV6_SYSCALL_H

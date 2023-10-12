@@ -541,3 +541,18 @@ void sfree(void)
     if (refs == 0)
         kfree(P2V(pa));
 }
+
+static volatile uint lock = 0;
+void acquirespinlk(void)
+{
+    while (xchg(&lock, 1) != 0)
+        ;
+    __sync_synchronize();
+}
+void releasespinlk(void)
+{
+    __sync_synchronize();
+    asm volatile("movl $0, %0"
+                 : "+m"(lock)
+                 :);
+}
