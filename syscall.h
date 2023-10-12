@@ -26,5 +26,7 @@
 #define SYS_smalloc 22
 #define SYS_acquirespinlk 23
 #define SYS_releasespinlk 24
+#define SYS_acquiresleeplk 25
+#define SYS_releasesleeplk 26
 
 #endif // XV6_SYSCALL_H

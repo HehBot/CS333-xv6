@@ -29,6 +29,8 @@ int uptime(void);
 void* smalloc(void);
 void acquirespinlk(void);
 void releasespinlk(void);
+void acquiresleeplk(void);
+void releasesleeplk(void);
 
 // ulib.c
 int stat(const char*, struct stat*);

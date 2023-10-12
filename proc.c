@@ -556,3 +556,43 @@ void releasespinlk(void)
                  : "+m"(lock)
                  :);
 }
+
+static volatile uint sleep_lock = 0;
+void sleeplock(struct proc* p)
+{
+    acquire(&ptable.lock);
+    releasespinlk();
+
+    p->chan = (void*)&sleep_lock;
+    p->state = SLEEPING;
+
+    sched();
+
+    p->chan = 0;
+
+    release(&ptable.lock);
+    acquirespinlk();
+}
+void wakeuplock(void)
+{
+    acquire(&ptable.lock);
+    for (struct proc* p = ptable.proc; p < &ptable.proc[NPROC]; ++p)
+        if (p->state == SLEEPING && p->chan == &sleep_lock)
+            p->state = RUNNABLE;
+    release(&ptable.lock);
+}
+void acquiresleeplk(void)
+{
+    acquirespinlk();
+    while (sleep_lock)
+        sleeplock(myproc());
+    sleep_lock = 1;
+    releasespinlk();
+}
+void releasesleeplk(void)
+{
+    acquirespinlk();
+    sleep_lock = 0;
+    wakeuplock();
+    releasespinlk();
+}

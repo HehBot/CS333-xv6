@@ -101,6 +101,8 @@ extern int sys_uptime(void);
 extern int sys_smalloc(void);
 extern int sys_acquirespinlk(void);
 extern int sys_releasespinlk(void);
+extern int sys_acquiresleeplk(void);
+extern int sys_releasesleeplk(void);
 
 static int (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
@@ -127,6 +129,8 @@ static int (*syscalls[])(void) = {
     [SYS_smalloc] sys_smalloc,
     [SYS_acquirespinlk] sys_acquirespinlk,
     [SYS_releasespinlk] sys_releasespinlk,
+    [SYS_acquiresleeplk] sys_acquiresleeplk,
+    [SYS_releasesleeplk] sys_releasesleeplk,
 };
 
 void syscall(void)

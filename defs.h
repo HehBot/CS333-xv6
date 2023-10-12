@@ -129,6 +129,8 @@ void* smalloc(void);
 void sfree(void);
 void acquirespinlk(void);
 void releasespinlk(void);
+void acquiresleeplk(void);
+void releasesleeplk(void);
 
 // swtch.S
 void swtch(struct context**, struct context*);

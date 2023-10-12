@@ -98,3 +98,15 @@ int sys_releasespinlk(void)
     releasespinlk();
     return 0;
 }
+
+int sys_acquiresleeplk(void)
+{
+    acquiresleeplk();
+    return 0;
+}
+
+int sys_releasesleeplk(void)
+{
+    releasesleeplk();
+    return 0;
+}
