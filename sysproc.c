@@ -81,3 +81,8 @@ int sys_uptime(void)
     release(&tickslock);
     return xticks;
 }
+
+int sys_smalloc(void)
+{
+    return (int)smalloc();
+}

@@ -56,8 +56,7 @@ walkpgdir(pde_t* pgdir, const void* va, int alloc)
 // Create PTEs for virtual addresses starting at va that refer to
 // physical addresses starting at pa. va and size might not
 // be page-aligned.
-static int
-mappages(pde_t* pgdir, void* va, uint size, uint pa, int perm)
+int mappages(pde_t* pgdir, void* va, uint size, uint pa, int perm)
 {
     char *a, *last;
     pte_t* pte;
@@ -260,12 +259,15 @@ int deallocuvm(pde_t* pgdir, uint oldsz, uint newsz)
         if (!pte)
             a = PGADDR(PDX(a) + 1, 0, 0) - PGSIZE;
         else if ((*pte & PTE_P) != 0) {
-            pa = PTE_ADDR(*pte);
-            if (pa == 0)
-                panic("kfree");
-            char* v = P2V(pa);
-            kfree(v);
-            *pte = 0;
+            if (!(*pte & PTE_SHARED)) {
+                pa = PTE_ADDR(*pte);
+                if (pa == 0)
+                    panic("kfree");
+                char* v = P2V(pa);
+                kfree(v);
+                *pte = 0;
+            } else
+                sfree();
         }
     }
     return newsz;

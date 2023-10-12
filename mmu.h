@@ -103,6 +103,7 @@ struct segdesc {
 #define PTE_P 0x001 // Present
 #define PTE_W 0x002 // Writeable
 #define PTE_U 0x004 // User
+#define PTE_SHARED 0x800 // Shared page (free for OS to use)
 #define PTE_PS 0x080 // Page Size
 
 // Address in page table or page directory entry

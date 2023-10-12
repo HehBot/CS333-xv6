@@ -518,3 +518,26 @@ void procdump(void)
         cprintf("\n");
     }
 }
+
+static uint pa;
+static uint refs = 0;
+void* smalloc(void)
+{
+    if (refs == 0) {
+        pa = V2P(kalloc());
+        memset(P2V(pa), 0, PGSIZE);
+    }
+    ++refs;
+    struct proc* curproc = myproc();
+    void* mem = (void*)curproc->sz;
+    curproc->sz += PGSIZE;
+    int mappages(pde_t * pgdir, void* va, uint size, uint pa, int perm);
+    mappages(curproc->pgdir, mem, PGSIZE, pa, PTE_W | PTE_U | PTE_SHARED);
+    return mem;
+}
+void sfree(void)
+{
+    --refs;
+    if (refs == 0)
+        kfree(P2V(pa));
+}
