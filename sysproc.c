@@ -113,3 +113,13 @@ int sys_set_priority(void)
 
     return set_priority(pid, priority);
 }
+
+int sys_set_quanta(void)
+{
+    int pid, quanta;
+
+    if (argint(0, &pid) < 0 || argint(1, &quanta) < 0)
+        return -1;
+
+    return set_quanta(pid, quanta);
+}

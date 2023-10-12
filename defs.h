@@ -127,6 +127,7 @@ void wakeup(void*);
 void yield(void);
 int wait2(int*, int*);
 int set_priority(int, int);
+int set_quanta(int, int);
 
 // swtch.S
 void swtch(struct context**, struct context*);
@@ -169,8 +170,10 @@ void timerinit(void);
 // trap.c
 void idtinit(void);
 extern uint ticks;
+extern uint slice;
 void tvinit(void);
 extern struct spinlock tickslock;
+extern struct spinlock slicelock;
 
 // uart.c
 void uartinit(void);

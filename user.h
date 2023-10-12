@@ -29,6 +29,7 @@ int uptime(void);
 void cscount(int);
 int wait2(int*, int*);
 int set_priority(int, int);
+int set_quanta(int, int);
 
 // ulib.c
 int stat(const char*, struct stat*);

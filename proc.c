@@ -90,6 +90,7 @@ found:
     p->pid = nextpid++;
     p->switch_in = p->switch_out = p->wait_ticks = p->run_ticks = 0;
     p->priority = 60;
+    p->slice = 1;
 
     release(&ptable.lock);
 
@@ -349,6 +350,10 @@ void scheduler(void)
 
             p->switch_in++;
 
+            acquire(&slicelock);
+            slice = p->slice;
+            release(&slicelock);
+
             acquire(&tickslock);
             uint start_ticks = ticks;
             release(&tickslock);
@@ -363,6 +368,10 @@ void scheduler(void)
             acquire(&tickslock);
             uint ticks_elapsed = ticks - start_ticks;
             release(&tickslock);
+
+            acquire(&slicelock);
+            slice = 1;
+            release(&slicelock);
 
             p->switch_out++;
 
@@ -599,6 +608,22 @@ int set_priority(int pid, int priority)
     for (struct proc* p = ptable.proc; p != &ptable.proc[NPROC]; ++p) {
         if (p->pid == pid) {
             p->priority = priority;
+            release(&ptable.lock);
+            return pid;
+        }
+    }
+
+    release(&ptable.lock);
+    return -1;
+}
+
+int set_quanta(int pid, int quanta)
+{
+    acquire(&ptable.lock);
+
+    for (struct proc* p = ptable.proc; p != &ptable.proc[NPROC]; ++p) {
+        if (p->pid == pid) {
+            p->slice = quanta;
             release(&ptable.lock);
             return pid;
         }

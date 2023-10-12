@@ -13,6 +13,9 @@ struct gatedesc idt[256];
 extern uint vectors[]; // in vectors.S: array of 256 entry pointers
 struct spinlock tickslock;
 uint ticks;
+struct spinlock slicelock;
+static uint current_slice;
+uint slice;
 
 void tvinit(void)
 {
@@ -22,7 +25,9 @@ void tvinit(void)
         SETGATE(idt[i], 0, SEG_KCODE << 3, vectors[i], 0);
     SETGATE(idt[T_SYSCALL], 1, SEG_KCODE << 3, vectors[T_SYSCALL], DPL_USER);
 
+    current_slice = 0;
     initlock(&tickslock, "time");
+    initlock(&slicelock, "slice");
 }
 
 void idtinit(void)
@@ -99,8 +104,14 @@ void trap(struct trapframe* tf)
 
     // Force process to give up CPU on clock tick.
     // If interrupts were on while locks held, would need to check nlock.
-    if (myproc() && myproc()->state == RUNNING && tf->trapno == T_IRQ0 + IRQ_TIMER)
-        yield();
+    if (myproc() && myproc()->state == RUNNING && tf->trapno == T_IRQ0 + IRQ_TIMER) {
+        acquire(&slicelock);
+        if (current_slice == slice) {
+            current_slice = 0;
+            yield();
+        }
+        release(&slicelock);
+    }
 
     // Check if the process has been killed since we yielded
     if (myproc() && myproc()->killed && (tf->cs & 3) == DPL_USER)

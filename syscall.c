@@ -101,6 +101,7 @@ extern int sys_uptime(void);
 extern int sys_cscount(void);
 extern int sys_wait2(void);
 extern int sys_set_priority(void);
+extern int sys_set_quanta(void);
 
 static int (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
@@ -127,6 +128,7 @@ static int (*syscalls[])(void) = {
     [SYS_cscount] sys_cscount,
     [SYS_wait2] sys_wait2,
     [SYS_set_priority] sys_set_priority,
+    [SYS_set_quanta] sys_set_quanta,
 };
 
 void syscall(void)

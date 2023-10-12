@@ -60,6 +60,7 @@ struct proc {
     uint switch_in, switch_out;
     uint wait_ticks, run_ticks;
     uint priority;
+    uint slice;
 };
 
 // Process memory is laid out contiguously, low addresses first:

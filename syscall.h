@@ -26,5 +26,6 @@
 #define SYS_cscount 22
 #define SYS_wait2 23
 #define SYS_set_priority 24
+#define SYS_set_quanta 25
 
 #endif // XV6_SYSCALL_H
