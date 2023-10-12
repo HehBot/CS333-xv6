@@ -81,3 +81,14 @@ int sys_uptime(void)
     release(&tickslock);
     return xticks;
 }
+
+int sys_cscount(void)
+{
+    int pid;
+
+    if (argint(0, &pid) < 0)
+        return -1;
+    struct proc* p = myproc();
+    cprintf("pid [%d] switch in [%d],switch out [%d]\n", p->pid, p->switch_in, p->switch_out);
+    return 0;
+}

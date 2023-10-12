@@ -88,6 +88,7 @@ allocproc(void)
 found:
     p->state = EMBRYO;
     p->pid = nextpid++;
+    p->switch_in = p->switch_out = 0;
 
     release(&ptable.lock);
 
@@ -337,8 +338,12 @@ void scheduler(void)
             switchuvm(p);
             p->state = RUNNING;
 
+            p->switch_in++;
+
             swtch(&(c->scheduler), p->context);
             switchkvm();
+
+            p->switch_out++;
 
             // Process is done running for now.
             // It should have changed its p->state before coming back.
@@ -383,7 +388,8 @@ void yield(void)
 }
 
 // A fork child's very first scheduling by scheduler()
-// will swtch here.  "Return" to user space.
+// will 1;
+// swtch here.  "Return" to user space.
 void forkret(void)
 {
     static int first = 1;
