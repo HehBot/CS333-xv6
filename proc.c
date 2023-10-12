@@ -89,6 +89,7 @@ found:
     p->state = EMBRYO;
     p->pid = nextpid++;
     p->switch_in = p->switch_out = p->wait_ticks = p->run_ticks = 0;
+    p->priority = 60;
 
     release(&ptable.lock);
 
@@ -327,10 +328,18 @@ void scheduler(void)
 
         // Loop over process table looking for process to run.
         acquire(&ptable.lock);
-        for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-            if (p->state != RUNNABLE)
-                continue;
+        int priority = 101;
+        for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+            if (p->state == RUNNABLE && p->priority < priority)
+                priority = p->priority;
+        if (priority == 101) {
+            release(&ptable.lock);
+            continue;
+        }
 
+        for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+            if (p->state != RUNNABLE || p->priority != priority)
+                continue;
             // Switch to chosen process.  It is the process's job
             // to release ptable.lock and then reacquire it
             // before jumping back to us.
@@ -339,6 +348,7 @@ void scheduler(void)
             p->state = RUNNING;
 
             p->switch_in++;
+
             acquire(&tickslock);
             uint start_ticks = ticks;
             release(&tickslock);
@@ -346,23 +356,22 @@ void scheduler(void)
             swtch(&(c->scheduler), p->context);
             switchkvm();
 
+            // Process is done running for now.
+            // It should have changed its p->state before coming back.
+            c->proc = 0;
+
             acquire(&tickslock);
             uint ticks_elapsed = ticks - start_ticks;
             release(&tickslock);
 
-            p->run_ticks += ticks_elapsed;
+            p->switch_out++;
 
+            p->run_ticks += ticks_elapsed;
             for (struct proc* pp = ptable.proc; pp < &ptable.proc[NPROC]; pp++) {
                 if (pp->state != RUNNABLE || pp == p)
                     continue;
                 pp->wait_ticks += ticks_elapsed;
             }
-
-            p->switch_out++;
-
-            // Process is done running for now.
-            // It should have changed its p->state before coming back.
-            c->proc = 0;
         }
         release(&ptable.lock);
     }
@@ -581,4 +590,20 @@ int wait2(int* wtime, int* runtime)
         // Wait for children to exit.  (See wakeup1 call in proc_exit.)
         sleep(curproc, &ptable.lock); // DOC: wait-sleep
     }
+}
+
+int set_priority(int pid, int priority)
+{
+    acquire(&ptable.lock);
+
+    for (struct proc* p = ptable.proc; p != &ptable.proc[NPROC]; ++p) {
+        if (p->pid == pid) {
+            p->priority = priority;
+            release(&ptable.lock);
+            return pid;
+        }
+    }
+
+    release(&ptable.lock);
+    return -1;
 }

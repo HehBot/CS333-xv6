@@ -25,5 +25,6 @@
 #define SYS_close 21
 #define SYS_cscount 22
 #define SYS_wait2 23
+#define SYS_set_priority 24
 
 #endif // XV6_SYSCALL_H
