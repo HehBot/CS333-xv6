@@ -81,3 +81,64 @@ int sys_uptime(void)
     release(&tickslock);
     return xticks;
 }
+
+int sys_clone(void)
+{
+    void (*fn)(int*);
+    int arg;
+    void* stack;
+
+    if (argptr(0, (char**)&fn, 0) < 0)
+        return -1;
+    if (argint(1, &arg) < 0)
+        return -1;
+    if (argint(2, (int*)&stack) < 0)
+        return -1;
+
+    return clone(fn, &arg, stack);
+}
+
+int sys_join(void)
+{
+    return join();
+}
+
+int sys_semaphore_init(void)
+{
+    int v;
+
+    if (argint(0, &v) < 0)
+        return -1;
+
+    return semaphore_init(v);
+}
+
+int sys_semaphore_destroy(void)
+{
+    int s;
+
+    if (argint(0, &s) < 0)
+        return -1;
+
+    return semaphore_destroy(s);
+}
+
+int sys_semaphore_down(void)
+{
+    int s;
+
+    if (argint(0, &s) < 0)
+        return -1;
+
+    return semaphore_down(s);
+}
+
+int sys_semaphore_up(void)
+{
+    int s;
+
+    if (argint(0, &s) < 0)
+        return -1;
+
+    return semaphore_up(s);
+}

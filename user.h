@@ -26,6 +26,12 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
+int clone(void (*fn)(int*), int* arg, void* stack);
+int join(void);
+int semaphore_init(int);
+int semaphore_destroy(int);
+int semaphore_down(int);
+int semaphore_up(int);
 
 // ulib.c
 int stat(const char*, struct stat*);
@@ -40,5 +46,6 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
+int create_thread(void (*fn)(int*), int* arg);
 
 #endif // XV6_USER_H

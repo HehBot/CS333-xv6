@@ -23,5 +23,11 @@
 #define SYS_link 19
 #define SYS_mkdir 20
 #define SYS_close 21
+#define SYS_clone 22
+#define SYS_join 23
+#define SYS_semaphore_init 24
+#define SYS_semaphore_destroy 25
+#define SYS_semaphore_down 26
+#define SYS_semaphore_up 27
 
 #endif // XV6_SYSCALL_H

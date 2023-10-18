@@ -14,27 +14,38 @@ struct {
 
 static struct proc* initproc;
 
+// ******************************
+// WPTHREAD -- START
+// ******************************
+struct semaphore {
+    int value;
+    int used;
+    struct spinlock lock;
+};
+struct semaphore semaphores[16];
+// ******************************
+// WPTHREAD -- END
+// ******************************
+
 int nextpid = 1;
 extern void forkret(void);
 extern void trapret(void);
 
 static void wakeup1(void* chan);
 
-void pinit(void)
+void pinit(void) { initlock(&ptable.lock, "ptable"); }
+void sinit(void)
 {
-    initlock(&ptable.lock, "ptable");
+    for (int idx = 0; idx < 16; ++idx)
+        initlock(&semaphores[idx].lock, "semaphores");
 }
 
 // Must be called with interrupts disabled
-int cpuid()
-{
-    return mycpu() - cpus;
-}
+int cpuid() { return mycpu() - cpus; }
 
 // Must be called with interrupts disabled to avoid the caller being
 // rescheduled between reading lapicid and running through the loop.
-struct cpu*
-mycpu(void)
+struct cpu* mycpu(void)
 {
     int apicid, i;
 
@@ -53,8 +64,7 @@ mycpu(void)
 
 // Disable interrupts so that we are not rescheduled
 // while reading proc from the cpu structure
-struct proc*
-myproc(void)
+struct proc* myproc(void)
 {
     struct cpu* c;
     struct proc* p;
@@ -70,8 +80,7 @@ myproc(void)
 //  If found, change state to EMBRYO and initialize
 //  state required to run in the kernel.
 //  Otherwise return 0.
-static struct proc*
-allocproc(void)
+static struct proc* allocproc(void)
 {
     struct proc* p;
     char* sp;
@@ -112,6 +121,17 @@ found:
     memset(p->context, 0, sizeof *p->context);
     p->context->eip = (uint)forkret;
 
+    // ******************************
+    // WPTHREAD -- START
+    // ******************************
+    // Set default tgid to pid
+    p->tgid = p->pid;
+
+    // Set thread-count to 1
+    p->thread_count = 1;
+    // ******************************
+    // WPTHREAD -- END
+    // ******************************
     return p;
 }
 
@@ -248,14 +268,26 @@ void exit(void)
     // Parent might be sleeping in wait().
     wakeup1(curproc->parent);
 
-    // Pass abandoned children to init.
+    // Pass abandoned children and threads to init.
+    // ******************************
+    // WPTHREAD -- START
+    // ******************************
     for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
         if (p->parent == curproc) {
+            if (p->tgid == curproc->pid) {
+                kill(p->pid);
+                p->thread_count -= 1;
+                initproc->thread_count += 1;
+            }
+
             p->parent = initproc;
             if (p->state == ZOMBIE)
                 wakeup1(initproc);
         }
     }
+    // ******************************
+    // WPTHREAD -- END
+    // ******************************
 
     // Jump into the scheduler, never to return.
     curproc->state = ZOMBIE;
@@ -276,8 +308,16 @@ int wait(void)
         // Scan through table looking for exited children.
         havekids = 0;
         for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-            if (p->parent != curproc)
+            // ******************************
+            // WPTHREAD -- START
+            // ******************************
+            // checks if the process is the parent thread and is the only existing
+            // thread for that process
+            if (p->parent != curproc || p->tgid != p->pid || p->thread_count != 1)
                 continue;
+            // ******************************
+            // WPTHREAD -- END
+            // ******************************
             havekids = 1;
             if (p->state == ZOMBIE) {
                 // Found one.
@@ -289,7 +329,16 @@ int wait(void)
                 p->parent = 0;
                 p->name[0] = 0;
                 p->killed = 0;
+                // ******************************
+                // WPTHREAD -- START
+                // ******************************
                 p->state = UNUSED;
+                p->user_stack = 0;
+                p->thread_count = 0;
+                p->tgid = 0;
+                // ******************************
+                // WPTHREAD -- START
+                // ******************************
                 release(&ptable.lock);
                 return pid;
             }
@@ -443,8 +492,7 @@ void sleep(void* chan, struct spinlock* lk)
 // PAGEBREAK!
 //  Wake up all processes sleeping on chan.
 //  The ptable lock must be held.
-static void
-wakeup1(void* chan)
+static void wakeup1(void* chan)
 {
     struct proc* p;
 
@@ -472,9 +520,27 @@ int kill(int pid)
     for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
         if (p->pid == pid) {
             p->killed = 1;
-            // Wake process from sleep if necessary.
-            if (p->state == SLEEPING)
-                p->state = RUNNABLE;
+            // ******************************
+            // WPTHREAD -- START
+            // ******************************
+            if (p->tgid == p->pid) {
+                // Kill all threads in the group
+                struct proc* p1;
+                for (p1 = ptable.proc; p1 < &ptable.proc[NPROC]; p1++) {
+                    if (p1->tgid == p->pid) {
+                        p1->killed = 1;
+                    }
+
+                    if (p1->state == SLEEPING)
+                        p1->state = RUNNABLE;
+                }
+            } else {
+                if (p->state == SLEEPING)
+                    p->state = RUNNABLE;
+            }
+            // ******************************
+            // WPTHREAD -- START
+            // ******************************
             release(&ptable.lock);
             return 0;
         }
@@ -490,12 +556,7 @@ int kill(int pid)
 void procdump(void)
 {
     static char* states[] = {
-        [UNUSED] "unused",
-        [EMBRYO] "embryo",
-        [SLEEPING] "sleep ",
-        [RUNNABLE] "runble",
-        [RUNNING] "run   ",
-        [ZOMBIE] "zombie"
+        [UNUSED] "unused", [EMBRYO] "embryo", [SLEEPING] "sleep ", [RUNNABLE] "runble", [RUNNING] "run   ", [ZOMBIE] "zombie"
     };
     int i;
     struct proc* p;
@@ -517,4 +578,119 @@ void procdump(void)
         }
         cprintf("\n");
     }
+}
+
+//  Wake up one process sleeping on chan.
+//  The ptable lock must be held.
+static void wakeup2(void* chan)
+{
+    acquire(&ptable.lock);
+    struct proc* p;
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        if (p->state == SLEEPING && p->chan == chan) {
+            p->state = RUNNABLE;
+            break;
+        }
+    }
+    release(&ptable.lock);
+}
+
+int clone(void (*fn)(int*), int* arg, void* stack)
+{
+    int thread_id;
+
+    // ******************************
+    // WPTHREAD -- START
+    // ******************************
+
+    // Allocate process.
+
+    // Share page table between threads.
+
+    // Copy state from proc.
+
+    // Share list of open files between threads.
+
+    // Set thread id and thread-group id.
+
+    // Setting up the stack of the thread
+
+    // return address for user function fn is at top of stack-2
+    // hope that fn does not every return, but calls exit
+
+    // argument to function fn at top stack - 1
+
+    // Setting up the trap-frame of the new thread.
+
+    // when function fn is called in user space
+    // the user stack will be as follows ...
+    // top of stack - 2: return address of fn
+    // top stack - 1: argument
+    // ebp: top of stack
+    // esp: top of stack - 2
+
+    // Update thread_count of the process.
+
+    // ******************************
+    // WPTHREAD -- END
+    // ******************************
+
+    return thread_id;
+}
+
+int join(void)
+{
+    // use wait as reference to implement
+    // functionality of join
+    // ******************************
+    // WPTHREAD -- START
+    // ******************************
+    return -1;
+    // ******************************
+    // WPTHREAD -- END
+    // ******************************
+}
+
+int semaphore_init(int v)
+{
+    // ******************************
+    // WPTHREAD -- START
+    // ******************************
+    return -1;
+    // ******************************
+    // WPTHREAD -- END
+    // ******************************
+}
+
+int semaphore_destroy(int s)
+{
+    // ******************************
+    // WPTHREAD -- START
+    // ******************************
+    return 0;
+    // ******************************
+    // WPTHREAD -- END
+    // ******************************
+}
+
+int semaphore_down(int s)
+{
+    // ******************************
+    // WPTHREAD -- START
+    // ******************************
+    return 0;
+    // ******************************
+    // WPTHREAD -- END
+    // ******************************
+}
+
+int semaphore_up(int s)
+{
+    // ******************************
+    // WPTHREAD -- START
+    // ******************************
+    return 0;
+    // ******************************
+    // WPTHREAD -- END
+    // ******************************
 }

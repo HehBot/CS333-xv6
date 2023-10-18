@@ -116,6 +116,7 @@ int kill(int);
 struct cpu* mycpu(void);
 struct proc* myproc();
 void pinit(void);
+void sinit(void);
 void procdump(void);
 void scheduler(void) __attribute__((noreturn));
 void sched(void);
@@ -125,6 +126,12 @@ void userinit(void);
 int wait(void);
 void wakeup(void*);
 void yield(void);
+int clone(void (*fn)(int*), int* arg, void* stack);
+int join(void);
+int semaphore_init(int);
+int semaphore_destroy(int);
+int semaphore_down(int);
+int semaphore_up(int);
 
 // swtch.S
 void swtch(struct context**, struct context*);

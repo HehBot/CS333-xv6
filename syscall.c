@@ -98,6 +98,12 @@ extern int sys_unlink(void);
 extern int sys_wait(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
+extern int sys_clone(void);
+extern int sys_join(void);
+extern int sys_semaphore_init(void);
+extern int sys_semaphore_destroy(void);
+extern int sys_semaphore_down(void);
+extern int sys_semaphore_up(void);
 
 static int (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
@@ -121,6 +127,12 @@ static int (*syscalls[])(void) = {
     [SYS_link] sys_link,
     [SYS_mkdir] sys_mkdir,
     [SYS_close] sys_close,
+    [SYS_clone] sys_clone,
+    [SYS_join] sys_join,
+    [SYS_semaphore_init] sys_semaphore_init,
+    [SYS_semaphore_destroy] sys_semaphore_destroy,
+    [SYS_semaphore_down] sys_semaphore_down,
+    [SYS_semaphore_up] sys_semaphore_up,
 };
 
 void syscall(void)

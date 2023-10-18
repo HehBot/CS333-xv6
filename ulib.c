@@ -95,3 +95,15 @@ void* memmove(void* vdst, const void* vsrc, int n)
         *dst++ = *src++;
     return vdst;
 }
+
+int create_thread(void (*fn)(int*), int* arg)
+{
+    // ******************************
+    // WPTHREAD -- START
+    // ******************************
+    int thread_id;
+    return thread_id;
+    // ******************************
+    // WPTHREAD -- END
+    // ******************************
+}
