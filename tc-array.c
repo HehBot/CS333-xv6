@@ -35,12 +35,10 @@ void array_sum(int* thread_rank)
 
 int main(int argc, char* argv[])
 {
+    int ind[2] = { 0, 1 };
 
-    printf(1, "Calling Process Print Check\n");
-
-    for (int i = 0; i < 2; i++) {
-        create_thread(array_sum, &i);
-        sleep(100);
+    for (int i = 0; i < 2; ++i) {
+        create_thread(array_sum, &ind[i]);
     }
 
     for (int i = 0; i < 2; i++) {

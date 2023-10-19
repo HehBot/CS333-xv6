@@ -603,24 +603,50 @@ int clone(void (*fn)(int*), int* arg, void* stack)
     // WPTHREAD -- START
     // ******************************
 
+    struct proc* curproc = myproc();
+
     // Allocate process.
+    struct proc* np;
+    if ((np = allocproc()) == 0) {
+        return -1;
+    }
 
     // Share page table between threads.
+    np->pgdir = curproc->pgdir;
 
     // Copy state from proc.
+    np->sz = curproc->sz;
+    np->parent = (curproc->tgid == curproc->pid ? curproc : curproc->parent);
+    *np->tf = *curproc->tf;
 
     // Share list of open files between threads.
+    for (int i = 0; i < NOFILE; ++i)
+        if (curproc->ofile[i])
+            np->ofile[i] = filedup(curproc->ofile[i]);
+
+    np->cwd = idup(curproc->cwd);
+    safestrcpy(np->name, curproc->name, sizeof(curproc->name));
 
     // Set thread id and thread-group id.
+    thread_id = np->pid;
+    np->tgid = curproc->tgid;
 
     // Setting up the stack of the thread
+    np->user_stack = stack;
 
     // return address for user function fn is at top of stack-2
     // hope that fn does not every return, but calls exit
+    int* ret_addr = (int*)((int)stack + PGSIZE - 2 * sizeof(int));
+    *ret_addr = 0xffffffff;
 
     // argument to function fn at top stack - 1
+    int* arg_addr = (int*)((int)stack + PGSIZE - sizeof(int));
+    *arg_addr = (int)arg;
 
     // Setting up the trap-frame of the new thread.
+    np->tf->eip = (uint)fn;
+    np->tf->esp = (uint)ret_addr;
+    np->tf->ebp = np->tf->esp;
 
     // when function fn is called in user space
     // the user stack will be as follows ...
@@ -629,7 +655,13 @@ int clone(void (*fn)(int*), int* arg, void* stack)
     // ebp: top of stack
     // esp: top of stack - 2
 
+    acquire(&ptable.lock);
+
     // Update thread_count of the process.
+    np->parent->thread_count++;
+    np->state = RUNNABLE;
+
+    release(&ptable.lock);
 
     // ******************************
     // WPTHREAD -- END
@@ -645,7 +677,49 @@ int join(void)
     // ******************************
     // WPTHREAD -- START
     // ******************************
-    return -1;
+    struct proc* curproc = myproc();
+
+    acquire(&ptable.lock);
+    for (;;) {
+        // Scan through table looking for exited child threads.
+        int havekids = 0, thread_id;
+        for (struct proc* p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+            if (p->tgid != curproc->pid || p->pid == p->tgid)
+                continue;
+            // is a child thread
+            if (p->parent != curproc) {
+                panic("child thread but parent not set to curproc");
+            }
+            havekids = 1;
+            if (p->state == ZOMBIE) {
+                // Found one child thread that exited
+                thread_id = p->pid;
+                kfree(p->kstack);
+                p->kstack = 0;
+                p->pid = 0;
+                p->parent = 0;
+                p->name[0] = 0;
+                p->killed = 0;
+                p->state = UNUSED;
+                p->thread_count = 0;
+                p->tgid = 0;
+                p->user_stack = 0;
+
+                release(&ptable.lock);
+                return thread_id;
+            }
+        }
+
+        // No point waiting if we don't have any children.
+        if (!havekids || curproc->killed) {
+            release(&ptable.lock);
+            return -1;
+        }
+
+        // Wait for threads to exit.  (See wakeup1 call in proc_exit.)
+        sleep(curproc, &ptable.lock); // DOC: wait-sleep
+    }
+
     // ******************************
     // WPTHREAD -- END
     // ******************************

@@ -101,7 +101,8 @@ int create_thread(void (*fn)(int*), int* arg)
     // ******************************
     // WPTHREAD -- START
     // ******************************
-    int thread_id;
+    void* stack = malloc(4096);
+    int thread_id = clone(fn, arg, stack);
     return thread_id;
     // ******************************
     // WPTHREAD -- END

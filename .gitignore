@@ -18,3 +18,4 @@ fmt
 mkfs
 entryother
 initcode
+.gdbinit

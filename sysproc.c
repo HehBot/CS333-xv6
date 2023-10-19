@@ -85,17 +85,17 @@ int sys_uptime(void)
 int sys_clone(void)
 {
     void (*fn)(int*);
-    int arg;
+    int* arg;
     void* stack;
 
     if (argptr(0, (char**)&fn, 0) < 0)
         return -1;
-    if (argint(1, &arg) < 0)
+    if (argptr(1, (char**)&arg, 4) < 0)
         return -1;
-    if (argint(2, (int*)&stack) < 0)
+    if (argptr(2, (char**)&stack, 4) < 0)
         return -1;
 
-    return clone(fn, &arg, stack);
+    return clone(fn, arg, stack);
 }
 
 int sys_join(void)
