@@ -730,6 +730,16 @@ int semaphore_init(int v)
     // ******************************
     // WPTHREAD -- START
     // ******************************
+    for (int s = 0; s < 16; ++s) {
+        acquire(&semaphores[s].lock);
+        if (!semaphores[s].used) {
+            semaphores[s].used = 1;
+            semaphores[s].value = v;
+            release(&semaphores[s].lock);
+            return s;
+        }
+        release(&semaphores[s].lock);
+    }
     return -1;
     // ******************************
     // WPTHREAD -- END
@@ -741,6 +751,9 @@ int semaphore_destroy(int s)
     // ******************************
     // WPTHREAD -- START
     // ******************************
+    acquire(&semaphores[s].lock);
+    semaphores[s].used = 0;
+    release(&semaphores[s].lock);
     return 0;
     // ******************************
     // WPTHREAD -- END
@@ -752,6 +765,15 @@ int semaphore_down(int s)
     // ******************************
     // WPTHREAD -- START
     // ******************************
+    acquire(&semaphores[s].lock);
+    if (!semaphores[s].used) {
+        release(&semaphores[s].lock);
+        return -1;
+    }
+    while (semaphores[s].value == 0)
+        sleep(&semaphores[s], &semaphores[s].lock);
+    semaphores[s].value--;
+    release(&semaphores[s].lock);
     return 0;
     // ******************************
     // WPTHREAD -- END
@@ -763,6 +785,14 @@ int semaphore_up(int s)
     // ******************************
     // WPTHREAD -- START
     // ******************************
+    acquire(&semaphores[s].lock);
+    if (!semaphores[s].used) {
+        release(&semaphores[s].lock);
+        return -1;
+    }
+    semaphores[s].value++;
+    wakeup2(&semaphores[s]);
+    release(&semaphores[s].lock);
     return 0;
     // ******************************
     // WPTHREAD -- END
