@@ -426,3 +426,30 @@ int sys_pipe(void)
     fd[1] = fd1;
     return 0;
 }
+
+int sys_getinodenum(void)
+{
+    int fd;
+    if (argint(0, &fd) < 0)
+        return -1;
+    struct proc* curproc = myproc();
+    return curproc->ofile[fd]->ip->inum;
+}
+
+int sys_getdatablock(void)
+{
+    int fd, off;
+    if (argint(0, &fd) < 0 || argint(1, &off))
+        return -1;
+    return getdatablock(myproc()->ofile[fd], off);
+}
+
+int sys_readdatablock(void)
+{
+    int dev;
+    void* buf;
+    int db;
+    if (argint(0, &dev) < 0 || argint(1, (void*)&buf) < 0 || argint(2, &db) < 0)
+        return -1;
+    return readdatablock(dev, buf, db);
+}

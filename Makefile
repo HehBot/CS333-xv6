@@ -185,6 +185,7 @@ UPROGS=\
 	_task1b\
 	_task1c\
 	_task2\
+	_test_stat\
 
 fs.img: mkfs README $(UPROGS) small.txt medium.txt big.txt
 	./mkfs fs.img README $(UPROGS) small.txt medium.txt big.txt

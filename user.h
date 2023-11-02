@@ -26,6 +26,9 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
+int getinodenum(int);
+int getdatablock(int, int);
+int readdatablock(int, void*, int);
 
 // ulib.c
 int stat(const char*, struct stat*);

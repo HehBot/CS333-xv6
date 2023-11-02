@@ -2,6 +2,7 @@
 // File descriptors
 //
 
+#include "buf.h"
 #include "defs.h"
 #include "file.h"
 #include "fs.h"
@@ -148,4 +149,28 @@ int filewrite(struct file* f, char* addr, int n)
         return i == n ? n : -1;
     }
     panic("filewrite");
+}
+
+int getdatablock(struct file* f, int off)
+{
+    struct inode* ip = f->ip;
+    if (off >= ip->size)
+        return -1;
+    if (off < NDIRECT * BSIZE)
+        return ip->addrs[off / BSIZE];
+    else {
+        uint indirect_block = ip->addrs[NDIRECT];
+        struct buf* b = bread(ip->dev, indirect_block);
+        uint ans = ((int*)(b->data))[(off - NDIRECT * BSIZE) / BSIZE];
+        brelse(b);
+        return ans;
+    }
+}
+
+int readdatablock(int dev, void* buf, int db)
+{
+    struct buf* b = bread(dev, db);
+    memmove(buf, b->data, BSIZE);
+    brelse(b);
+    return 0;
 }
