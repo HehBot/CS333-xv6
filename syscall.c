@@ -101,6 +101,7 @@ extern int sys_uptime(void);
 extern int sys_getinodenum(void);
 extern int sys_getdatablock(void);
 extern int sys_readdatablock(void);
+extern int sys_symlink(void);
 
 static int (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
@@ -127,6 +128,7 @@ static int (*syscalls[])(void) = {
     [SYS_getinodenum] sys_getinodenum,
     [SYS_getdatablock] sys_getdatablock,
     [SYS_readdatablock] sys_readdatablock,
+    [SYS_symlink] sys_symlink,
 };
 
 void syscall(void)

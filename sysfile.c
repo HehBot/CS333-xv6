@@ -298,11 +298,24 @@ int sys_open(void)
             end_op();
             return -1;
         }
+    point:
         ilock(ip);
         if (ip->type == T_DIR && omode != O_RDONLY) {
             iunlockput(ip);
             end_op();
             return -1;
+        } else if (ip->type == T_SYMLINK) {
+            char path[1024];
+            int path_len;
+            readi(ip, (void*)&path_len, 0, sizeof(int));
+            readi(ip, (void*)&path[0], sizeof(int), path_len);
+            path[path_len] = '\0';
+            iunlockput(ip);
+            if ((ip = namei(path)) == 0) {
+                end_op();
+                return -1;
+            }
+            goto point;
         }
     }
 
@@ -452,4 +465,30 @@ int sys_readdatablock(void)
     if (argint(0, &dev) < 0 || argint(1, (void*)&buf) < 0 || argint(2, &db) < 0)
         return -1;
     return readdatablock(dev, buf, db);
+}
+
+// Create the path new as a soft link to the path old.
+int sys_symlink(void)
+{
+    char* new, *old;
+    struct inode* ip;
+
+    if (argstr(0, &old) < 0 || argstr(1, &new) < 0)
+        return -1;
+
+    begin_op();
+    if ((ip = create(new, T_SYMLINK, 0, 0)) == 0) {
+        end_op();
+        return -1;
+    }
+
+    int path_length = strlen(old);
+    writei(ip, (void*)&path_length, 0, sizeof(path_length));
+    writei(ip, (void*)old, sizeof(path_length), path_length);
+
+    iunlockput(ip);
+
+    end_op();
+
+    return 0;
 }

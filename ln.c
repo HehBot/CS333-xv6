@@ -16,8 +16,8 @@ int main(int argc, char* argv[])
         if (link(argv[1], argv[2]) < 0)
             printf(2, "link %s %s: failed\n", argv[1], argv[2]);
     } else {
-        // if (symlink(argv[2], argv[3]) < 0)
-        //   printf(2, "symlink %s %s: failed\n", argv[2], argv[3]);
+        if (symlink(argv[2], argv[3]) < 0)
+            printf(2, "symlink %s %s: failed\n", argv[2], argv[3]);
     }
 
     exit();

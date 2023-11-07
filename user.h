@@ -29,6 +29,7 @@ int uptime(void);
 int getinodenum(int);
 int getdatablock(int, int);
 int readdatablock(int, void*, int);
+int symlink(char const*, char const*);
 
 // ulib.c
 int stat(const char*, struct stat*);
