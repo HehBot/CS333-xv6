@@ -285,10 +285,15 @@ int sys_open(void)
     if (argstr(0, &path) < 0 || argint(1, &omode) < 0)
         return -1;
 
+    int enc = ((omode & O_ENCRYPT) != 0);
+
     begin_op();
 
     if (omode & O_CREATE) {
-        ip = create(path, T_FILE, 0, 0);
+        if (enc)
+            ip = create(path, T_ENCRYPTED, 0, 0);
+        else
+            ip = create(path, T_FILE, 0, 0);
         if (ip == 0) {
             end_op();
             return -1;
@@ -304,6 +309,12 @@ int sys_open(void)
             iunlockput(ip);
             end_op();
             return -1;
+            //         } else if (ip->type == T_ENCRYPTED) {
+            //             if (!enc) {
+            //                 iunlockput(ip);
+            //                 end_op();
+            //                 return -1;
+            //             }
         } else if (ip->type == T_SYMLINK) {
             char path[1024];
             int path_len;
@@ -333,7 +344,8 @@ int sys_open(void)
     f->ip = ip;
     f->off = 0;
     f->readable = !(omode & O_WRONLY);
-    f->writable = (omode & O_WRONLY) || (omode & O_RDWR);
+    f->writable = (omode & O_WRONLY) || (omode & O_RDWR) || (omode & O_ENCRYPT);
+    f->encrypted = enc;
     return fd;
 }
 

@@ -7,6 +7,7 @@
 #define T_FILE 2 // File
 #define T_DEV 3 // Device
 #define T_SYMLINK 4 // Symlink
+#define T_ENCRYPTED 5 // Encrypted file
 
 struct stat {
     short type; // Type of file

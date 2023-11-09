@@ -9,6 +9,7 @@
 #include "param.h"
 #include "sleeplock.h"
 #include "spinlock.h"
+#include "stat.h"
 #include "types.h"
 
 struct devsw devsw[NDEV];
@@ -90,10 +91,28 @@ int filestat(struct file* f, struct stat* st)
     return -1;
 }
 
+static void encrypt(void* b, int n)
+{
+    char* c = b;
+    for (int i = 0; i < n; ++i)
+        c[i] = ~c[i];
+}
+static void decrypt(void* b, int n)
+{
+    char* c = b;
+    for (int i = 0; i < n; ++i)
+        c[i] = ~c[i];
+}
+
 // Read from file f.
 int fileread(struct file* f, char* addr, int n)
 {
     int r;
+
+    if (f->ip->type == T_ENCRYPTED && !f->encrypted) {
+        cprintf("This is an encrypted file, read in O_ENCRYPT mode only\n");
+        exit();
+    }
 
     if (f->readable == 0)
         return -1;
@@ -103,6 +122,8 @@ int fileread(struct file* f, char* addr, int n)
         ilock(f->ip);
         if ((r = readi(f->ip, addr, f->off, n)) > 0)
             f->off += r;
+        if (f->encrypted)
+            decrypt(addr, n);
         iunlock(f->ip);
         return r;
     }
@@ -115,11 +136,19 @@ int filewrite(struct file* f, char* addr, int n)
 {
     int r;
 
+    if (f->ip->type == T_ENCRYPTED && !f->encrypted) {
+        cprintf("This is an encrypted file, read in O_ENCRYPT mode only\n");
+        exit();
+    }
+
     if (f->writable == 0)
         return -1;
     if (f->type == FD_PIPE)
         return pipewrite(f->pipe, addr, n);
     if (f->type == FD_INODE) {
+        if (f->encrypted) {
+            encrypt(addr, n);
+        }
         // write a few blocks at a time to avoid exceeding
         // the maximum log transaction size, including
         // i-node, indirect block, allocation blocks,
